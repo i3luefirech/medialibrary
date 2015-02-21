@@ -4,7 +4,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.PrintStream;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -13,7 +12,6 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -38,11 +36,8 @@ public class GUI_search extends JPanel implements ActionListener, ListSelectionL
 	JButton clearSF;
 	JButton searchSF;
 	JButton searchAllSF;
-
-	JTextArea console;
 	
 	JPanel myTitle;
-	JPanel myConsole;
 	JPanel myChoose;
 	JPanel mySearchFolders;
 	JPanel mySFcmds;
@@ -54,13 +49,12 @@ public class GUI_search extends JPanel implements ActionListener, ListSelectionL
 		this.mypref = mypref;
 		
 		myChoose = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		myConsole = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		myTitle = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		mySearchFolders = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		mySFcmds = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		
 		title = new JLabel();
-		title.setText("AML - Another Media Library");
+		title.setText("Suchpfad");
 		
 		myTitle.add(title);
 		
@@ -102,31 +96,10 @@ public class GUI_search extends JPanel implements ActionListener, ListSelectionL
 		mySFcmds.add(deleteSF);
 		mySFcmds.add(clearSF);
 		
-		console = new JTextArea();
-		console.setRows(10);
-		console.setColumns(80);
-		
-		myConsole.add(console);
-		
-		PrintStream con=new PrintStream(new TextAreaOutputStream(console,20));
-		try {
-			System.setOut(con);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		try {
-			System.setErr(con);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
 		add(myTitle);
 		add(myChoose);
 		add(mySearchFolders);
 		add(mySFcmds);
-		add(myConsole);
 	}
 	
 	private DefaultListModel<String> fillList(DefaultListModel<String> list) {
@@ -197,10 +170,6 @@ public class GUI_search extends JPanel implements ActionListener, ListSelectionL
 				searchSF.setEnabled(true);
 			}
 		}
-	}
-
-	public void initErr(int errnr, String errmsg) {
-		System.out.println("!!!!!! Error( " + errnr + " ): " + errmsg + " !!!!!!");
 	}
 
 }
