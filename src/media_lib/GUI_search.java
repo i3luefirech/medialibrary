@@ -76,7 +76,7 @@ public class GUI_search extends JPanel implements ActionListener, ListSelectionL
 		show_sf.addListSelectionListener(this);
 		show_sf.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		listScroller = new JScrollPane(show_sf);
-		listScroller.setPreferredSize(new Dimension(880, 100));
+		listScroller.setPreferredSize(new Dimension(this.mypref.getPreferredSize().width-40, this.mypref.getPreferredSize().height-350));
 		
 		mySearchFolders.add(listScroller);
 		
@@ -105,6 +105,7 @@ public class GUI_search extends JPanel implements ActionListener, ListSelectionL
 	private DefaultListModel<String> fillList(DefaultListModel<String> list) {
 		String text = mypref.getSF();
 		String[] lines = text.split("\r\n");
+		list.clear();
 		for(int i = 0; i < lines.length; i++)
 		{
 			list.addElement(lines[i]);
@@ -142,16 +143,23 @@ public class GUI_search extends JPanel implements ActionListener, ListSelectionL
 		if(e.getSource()==addfolder)
 		{
 			mypref.setSF(mypref.getSF()+foldername.getText()+"\r\n");
+			searchfolders = fillList(searchfolders);
 			foldername.setText("Keine Auswahl ");
 			addfolder.setEnabled(false);
 		}
-		if(e.getSource()==deleteSF)
-		{
-			
-		}
 		if(e.getSource()==clearSF)
 		{
-			
+			mypref.setSF("");
+			searchfolders = fillList(searchfolders);
+		}
+		if(e.getSource()==deleteSF)
+		{
+			String replace = (show_sf.getSelectedValue()+"\r\n");
+			String old =  mypref.getSF();
+			int pos_beg = old.indexOf(replace);
+			int pos_end = old.indexOf(replace)+replace.length();
+			mypref.setSF(old.substring(0, pos_beg)+old.substring(pos_end));
+			searchfolders = fillList(searchfolders);
 		}
 	}
 	

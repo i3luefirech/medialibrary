@@ -4,13 +4,18 @@
 package media_lib;
 
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
 import java.io.PrintStream;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
@@ -27,6 +32,7 @@ import java.nio.file.Path;*/
  */
 public class media_lib {
 	static JTextArea console;
+	static JScrollPane listScroller;
 	
 	static GUI_search myGUI_s;
 	static GUI_library myGUI_l;
@@ -41,10 +47,16 @@ public class media_lib {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		
+		myPref = new Pref();
 
 		console = new JTextArea();
-		console.setRows(10);
+		console.setAutoscrolls(true);
+		console.setRows(1000);
 		console.setColumns(80);
+		
+		listScroller = new JScrollPane(console);
+		listScroller.setPreferredSize(new Dimension(myPref.getPreferredSize().width-20, myPref.getPreferredSize().height-630));
 		
 		PrintStream con=new PrintStream(new TextAreaOutputStream(console,20));
 		try {
@@ -64,7 +76,6 @@ public class media_lib {
 		
 		tabbedPane = new JTabbedPane();
 
-		myPref = new Pref();
 		myGUI_s = new GUI_search(myPref);
 		myGUI_l = new GUI_library(myPref);
 		myGUI_set = new GUI_settings(myPref);
@@ -94,10 +105,34 @@ public class media_lib {
 		tabbedPane.addTab("Einstellungen", null, myGUI_set, "Einstellungen");
 		tabbedPane.setMnemonicAt(2, KeyEvent.VK_3);
 		
-		mainpanel.add(tabbedPane);
-		mainpanel.add(console);
+		mainpanel.add(tabbedPane,BorderLayout.CENTER);
+		mainpanel.add(listScroller,BorderLayout.PAGE_END);
 		
-		JFrame frame = new JFrame("");
+		final JFrame frame = new JFrame("");
+		frame.addComponentListener(new ComponentListener(){
+
+			@Override
+			public void componentHidden(ComponentEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void componentMoved(ComponentEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void componentResized(ComponentEvent arg0) {
+				// System.out.println("w: " + frame.getSize().width + "h: " + frame.getSize().height);
+			}
+
+			@Override
+			public void componentShown(ComponentEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}});
 		frame.setIconImage(Toolkit.getDefaultToolkit().getImage("img/logo.png"));
 		frame.setTitle("AML - Another Media Library");
 		frame.setLocationByPlatform(true);

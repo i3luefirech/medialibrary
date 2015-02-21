@@ -41,7 +41,7 @@ public class Pref {
 	}
 
 	public Dimension getPreferredSize(){
-		return new Dimension(prefs.getInt(PREF_WIDTH, 900), prefs.getInt(PREF_HEIGHT, 420));
+		return new Dimension(prefs.getInt(PREF_WIDTH, 930), prefs.getInt(PREF_HEIGHT, 800));
 	}
 	
 	public void setPreferredSize(int width, int height){
