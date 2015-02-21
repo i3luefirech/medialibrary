@@ -29,7 +29,7 @@ public class media_lib {
 
 		myPref = new Pref();
 		myGUI = new GUI(myPref);
-		my_db = new mydb();
+		my_db = new mydb(myPref);
 		
 		myGUI.setLayout(new BoxLayout(myGUI, BoxLayout.Y_AXIS));
 		

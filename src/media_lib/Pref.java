@@ -15,10 +15,12 @@ public class Pref {
 	
 	final String PREF_DB_PATH = "DB_PATH";
 	final String PREF_SEARCH_PATH = "SEARCH_PATH";
+	final String PREF_WIDTH = "SIZE_WIDTH";
+	final String PREF_HEIGHT = "SIZE_HEIGHT";
 	
 	public Pref()
 	{
-		// read Prefs
+		// read Pref
 		prefs = Preferences.userRoot().node(this.getClass().getName());
 	}
 	
@@ -39,6 +41,11 @@ public class Pref {
 	}
 
 	public Dimension getPreferredSize(){
-		return new Dimension(900, 800);
+		return new Dimension(prefs.getInt(PREF_WIDTH, 900), prefs.getInt(PREF_HEIGHT, 800));
+	}
+	
+	public void setPreferredSize(int width, int height){
+		prefs.putInt(PREF_WIDTH, width);
+		prefs.putInt(PREF_HEIGHT, height);
 	}
 }
