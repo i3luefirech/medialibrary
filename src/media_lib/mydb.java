@@ -60,14 +60,28 @@ public class mydb {
 			stmt.executeUpdate(sql);
 			mypref.setDB(true);
 			System.out.println("Database created successfully...");
-		}catch(SQLException se){
-			//Handle errors for JDBC
-			se.printStackTrace();
-			ret = 1;
 		}catch(Exception e){
-			//Handle errors for Class.forName
-			e.printStackTrace();
-			ret = 2;
+			if(e.getClass().equals(SQLException.class))
+			{
+				SQLException se = (SQLException) e;
+				if(se.getErrorCode()==1007) // alread exists
+				{
+					System.out.println(se.getMessage());
+					mypref.setDB(true);
+					ret = 0;
+				}
+				else
+				{
+					System.out.println("error code: "+se.getErrorCode());
+					se.printStackTrace();
+					ret = 1;
+				}
+			}
+			else
+			{
+				e.printStackTrace();
+				ret = 2;
+			}
 		}finally{
 			//finally block used to close resources
 			try{

@@ -19,13 +19,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
-/*import java.io.IOException;
-import java.nio.file.DirectoryIteratorException;
-import java.nio.file.DirectoryStream;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;*/
-
 /**
  * @author bluefire
  *
@@ -52,13 +45,12 @@ public class media_lib {
 
 		console = new JTextArea();
 		console.setAutoscrolls(true);
-		console.setRows(1000);
 		console.setColumns(80);
 		
 		listScroller = new JScrollPane(console);
-		listScroller.setPreferredSize(new Dimension(myPref.getPreferredSize().width-20, myPref.getPreferredSize().height-630));
+		listScroller.setPreferredSize(new Dimension(myPref.getPreferredSize().width-20, myPref.getPreferredSize().height-645));
 		
-		PrintStream con=new PrintStream(new TextAreaOutputStream(console,20));
+		PrintStream con=new PrintStream(new TextAreaOutputStream(console,10000));
 		try {
 			System.setOut(con);
 		} catch (Exception e) {
@@ -138,6 +130,7 @@ public class media_lib {
 		frame.setLocationByPlatform(true);
 		frame.add(mainpanel);
 		frame.setSize(myPref.getPreferredSize());
+		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 	}
@@ -146,17 +139,3 @@ public class media_lib {
 		System.out.println("!!!!!! Error( " + errnr + " ): " + errmsg + " !!!!!!");
 	}
 }
-
-/*Iterable<Path> dirs = FileSystems.getDefault().getRootDirectories();
-for (Path name: dirs) {
-	System.err.println(name);
-	try (DirectoryStream<Path> stream = Files.newDirectoryStream(name)) {
-	    for (Path file: stream) {
-	        System.out.println(file.getFileName());
-	    }
-	} catch (IOException | DirectoryIteratorException x) {
-	    // IOException can never be thrown by the iteration.
-	    // In this snippet, it can only be thrown by newDirectoryStream.
-	    System.err.println(x);
-	}
-}*/
