@@ -204,7 +204,7 @@ public class GUI_search extends GUI{
 	        			case "wav":
 	        			case "wma":
 	        			case "flac":
-	        				list_audio.add(fileEntry.getName());
+	        				list_audio.add(mydb.mysql_real_escape_string(fileEntry.getName()));
 	        				break;
 	        			// Video
 	        			case "3g2":
@@ -223,7 +223,7 @@ public class GUI_search extends GUI{
 	        			case "swf":
 	        			case "vob":
 	        			case "wmv":
-	        				list_video.add(fileEntry.getName());
+	        				list_video.add(mydb.mysql_real_escape_string(fileEntry.getName()));
 		        			break;
 		        		// Image
 	        			case "bmp":
@@ -239,7 +239,7 @@ public class GUI_search extends GUI{
 	        			case "tif":
 	        			case "tiff":
 	        			case "yuv":
-	        				list_image.add(fileEntry.getName());
+	        				list_image.add(mydb.mysql_real_escape_string(fileEntry.getName()));
 		        			break;
 	        		}
 	        	}
@@ -281,17 +281,26 @@ public class GUI_search extends GUI{
 		// sync
 		ResultSet rs;
 		try {
-			rs = mydb.execute_query("SELECT * FROM Files");
-			// iterate through the java resultset
-			while (rs.next())
-			{
-				int id = rs.getInt("FileID");
-				String path = rs.getString("Path");
-				int type = rs.getInt("Type");
-				String name = rs.getString("Name");
-				 
-				// print the results
-				System.out.format("%s, %s, %s, %s, %s, %s\n", id, path, type, name);
+			for(int i = 0; i < list_audio.size(); i++){
+				rs = mydb.execute_query("SELECT Path FROM Files WHERE Path='" + list_audio.get(i) + "'");
+				if (!rs.next())
+				{
+					mydb.execute_update("INSERT INTO Files ( Path, Type, Name ) VALUES ('" + list_audio.get(i) + "', 1, '" + list_audio.get(i) + "' )");
+				}
+			}
+			for(int i = 0; i < list_video.size(); i++){
+				rs = mydb.execute_query("SELECT Path FROM Files WHERE Path='" + list_video.get(i) + "'");
+				if (!rs.next())
+				{
+					mydb.execute_update("INSERT INTO Files ( Path, Type, Name ) VALUES ('" + list_video.get(i) + "', 2, '" + list_video.get(i) + "' )");
+				}
+			}
+			for(int i = 0; i < list_image.size(); i++){
+				rs = mydb.execute_query("SELECT Path FROM Files WHERE Path='" + list_image.get(i) + "'");
+				if (!rs.next())
+				{
+					mydb.execute_update("INSERT INTO Files ( Path, Type, Name ) VALUES ('" + list_image.get(i) + "', 3, '" + list_image.get(i) + "' )");
+				}
 			}
 			found.setText("Gefundene Files: Audio: 0 Video: 0 Image: 0 ");
 			System.out.println("SyncDB successfully...");

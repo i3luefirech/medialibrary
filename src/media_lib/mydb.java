@@ -49,7 +49,7 @@ public class mydb {
 		}
 	}
 	
-	private static void execute_update(String sql) throws SQLException
+	public static void execute_update(String sql) throws SQLException
 	{
 		//Execute a query
 		stmt = conn.createStatement();
@@ -59,14 +59,38 @@ public class mydb {
 	public static ResultSet execute_query(String sql) throws SQLException
 	{
 		// use Media lib
-		System.out.println("Use db...");
 		execute_update("USE MEDIA");
-		System.out.println("Db use successfully...");
 		//Execute a query
 		stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery(sql);
 		return rs;
 	}
+	
+	public static String mysql_real_escape_string(String str) 
+     {
+         if (str == null) {
+             return null;
+         }
+         if (str.replaceAll("[a-zA-Z0-9_!@#$%^&*()-=+~.;:,\\Q[\\E\\Q]\\E<>{}\\/? ]","").length() < 1) {
+             return str;
+         }
+         String clean_string = str;
+         clean_string = clean_string.replaceAll("\\\\", "\\\\\\\\");
+         clean_string = clean_string.replaceAll("\\n","\\\\n");
+         clean_string = clean_string.replaceAll("\\r", "\\\\r");
+         clean_string = clean_string.replaceAll("\\t", "\\\\t");
+         clean_string = clean_string.replaceAll("\\00", "\\\\0");
+         clean_string = clean_string.replaceAll("'", "\\\\'");
+         clean_string = clean_string.replaceAll("\\\"", "\\\\\"");
+         if (clean_string.replaceAll("[a-zA-Z0-9_!@#$%^&*()-=+~.;:,\\Q[\\E\\Q]\\E<>{}\\/?\\\\\"' ]"
+           ,"").length() < 1) 
+         {
+             return clean_string;
+         }
+
+         return clean_string;       
+     }
+
 
 	@SuppressWarnings("finally")
 	public int createDB() {
