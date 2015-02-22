@@ -15,8 +15,8 @@ public class mydb {
 	static final String PASS = "User";
 	
 	// SQL
-	Connection conn;
-	Statement stmt;
+	static Connection conn;
+	static Statement stmt;
 	   
 	public mydb(Pref mypref) {
 		
@@ -48,18 +48,91 @@ public class mydb {
 			return ret;
 		}
 	}
+	
+	private static void execute_update(String sql) throws SQLException
+	{
+		//Execute a query
+		stmt = conn.createStatement();
+		stmt.executeUpdate(sql);
+	}
+	
+	public static ResultSet execute_query(String sql) throws SQLException
+	{
+		// use Media lib
+		System.out.println("Use db...");
+		execute_update("USE MEDIA");
+		System.out.println("Db use successfully...");
+		//Execute a query
+		stmt = conn.createStatement();
+		ResultSet rs = stmt.executeQuery(sql);
+		return rs;
+	}
 
 	@SuppressWarnings("finally")
 	public int createDB() {
 		int ret = 0;
 		try{
-			//Execute a query
+			// create DB
 			System.out.println("Creating database...");
-			stmt = conn.createStatement();
-			String sql = "CREATE DATABASE MEDIA";
-			stmt.executeUpdate(sql);
-			mypref.setDB(true);
+			execute_update("CREATE DATABASE MEDIA");
 			System.out.println("Database created successfully...");
+			
+			// use Media lib
+			System.out.println("Use db...");
+			execute_update("USE MEDIA");
+			System.out.println("Db use successfully...");
+			System.out.println("Creating tables...");
+			
+			// create Keywords table
+			execute_update("CREATE TABLE Keywords ( "
+					+ "KeywordID int NOT NULL AUTO_INCREMENT, "
+					+ "PRIMARY KEY(KeywordID), "
+					+ "Name varchar ( 255 ), "
+					+ "Descri TEXT )");
+			// create Files table
+			execute_update("CREATE TABLE Files ( "
+					+ "FileID int NOT NULL AUTO_INCREMENT, "
+					+ "PRIMARY KEY(FileID), "
+					+ "Path TEXT, "
+					+ "Type int, "
+					+ "Name varchar ( 255 ) )");
+			// create KeyFil table
+			execute_update("CREATE TABLE KeyFil ( "
+					+ "KeyFilID int NOT NULL AUTO_INCREMENT, "
+					+ "PRIMARY KEY(KeyFilID), "
+					+ "FileID int, "
+					+ "FOREIGN KEY (FileID) REFERENCES Files(FileID),"
+					+ "KeywordID int, "
+					+ "FOREIGN KEY (KeywordID) REFERENCES Keywords(KeywordID) ) "
+					+ "ENGINE=INNODB;");
+			// create Person table
+			execute_update("CREATE TABLE Person ( "
+					+ "PersonID int NOT NULL AUTO_INCREMENT, "
+					+ "PRIMARY KEY(PersonID), "
+					+ "Name varchar ( 255 ), "
+					+ "Surname varchar ( 255 ) )");
+			// create FilPer table
+			execute_update("CREATE TABLE FilPer ( "
+					+ "FilPerID int NOT NULL AUTO_INCREMENT, "
+					+ "PRIMARY KEY(FilPerID), "
+					+ "FileID int, "
+					+ "FOREIGN KEY (FileID) REFERENCES Files(FileID),"
+					+ "PersonID int, "
+					+ "FOREIGN KEY (PersonID) REFERENCES Person(PersonID) ) "
+					+ "ENGINE=INNODB;");
+			// create Job table
+			execute_update("CREATE TABLE Job ( "
+					+ "JobID int NOT NULL AUTO_INCREMENT, "
+					+ "PRIMARY KEY(JobID), "
+					+ "Name varchar ( 255 ) )");
+			// create JoFiPe table
+			execute_update("CREATE TABLE JoFiPe ( "
+					+ "JoFiPeID int NOT NULL AUTO_INCREMENT, "
+					+ "PRIMARY KEY(JoFiPeID), "
+					+ "JobID int, "
+					+ "FilPerID int )");
+			mypref.setDB(true);
+			System.out.println("Tables created successfully...");
 		}catch(Exception e){
 			if(e.getClass().equals(SQLException.class))
 			{

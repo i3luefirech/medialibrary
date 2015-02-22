@@ -3,8 +3,9 @@ package media_lib;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import javax.swing.DefaultListModel;
@@ -16,14 +17,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 @SuppressWarnings("serial")
-public class GUI_search extends JPanel implements ActionListener, ListSelectionListener{
-	
-	Pref mypref;
-	
-	JLabel title;
+public class GUI_search extends GUI{
 	
 	JButton choosefolder;
 	JFileChooser chooser;
@@ -53,9 +49,7 @@ public class GUI_search extends JPanel implements ActionListener, ListSelectionL
 	
 	public GUI_search(Pref mypref) {
 		
-		super();
-		
-		this.mypref = mypref;
+		super(mypref);
 		
 		myChoose = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		myTitle = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -281,9 +275,31 @@ public class GUI_search extends JPanel implements ActionListener, ListSelectionL
 	}
 	
 	private void syncDB(){
-		found.setText("Gefundene Files: Audio: 0 Video: 0 Image: 0 ");
+		System.out.println("SyncDB...");
 		syncDB.setEnabled(false);
-		// TODO sync
+		
+		// sync
+		ResultSet rs;
+		try {
+			rs = mydb.execute_query("SELECT * FROM Files");
+			// iterate through the java resultset
+			while (rs.next())
+			{
+				int id = rs.getInt("FileID");
+				String path = rs.getString("Path");
+				int type = rs.getInt("Type");
+				String name = rs.getString("Name");
+				 
+				// print the results
+				System.out.format("%s, %s, %s, %s, %s, %s\n", id, path, type, name);
+			}
+			found.setText("Gefundene Files: Audio: 0 Video: 0 Image: 0 ");
+			System.out.println("SyncDB successfully...");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		list_audio.clear();
 		list_video.clear();
 		list_image.clear();

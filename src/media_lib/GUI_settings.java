@@ -2,17 +2,13 @@ package media_lib;
 
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 @SuppressWarnings("serial")
-public class GUI_settings extends JPanel implements ActionListener, ListSelectionListener{
-	
-	Pref mypref;
+public class GUI_settings extends GUI{
 
 	JLabel title;
 	
@@ -20,9 +16,7 @@ public class GUI_settings extends JPanel implements ActionListener, ListSelectio
 	
 	public GUI_settings(Pref mypref) {
 		
-		super();
-		
-		this.mypref = mypref;
+		super(mypref);
 		
 		myTitle = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		
