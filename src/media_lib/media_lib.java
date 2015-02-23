@@ -11,6 +11,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
 import java.io.PrintStream;
+import java.sql.SQLException;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
@@ -84,6 +85,12 @@ public class media_lib {
 				{
 					initErr(2,"Create DB");
 				}
+			}
+			try {
+				mydb.execute_update("USE MEDIA");
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 		else{

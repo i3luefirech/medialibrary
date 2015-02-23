@@ -1,9 +1,11 @@
 package media_lib;
 
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -13,6 +15,7 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
@@ -204,7 +207,7 @@ public class GUI_search extends GUI{
 	        			case "wav":
 	        			case "wma":
 	        			case "flac":
-	        				list_audio.add(mydb.mysql_real_escape_string(fileEntry.getName()));
+	        				list_audio.add(fileEntry.getName());
 	        				break;
 	        			// Video
 	        			case "3g2":
@@ -223,7 +226,7 @@ public class GUI_search extends GUI{
 	        			case "swf":
 	        			case "vob":
 	        			case "wmv":
-	        				list_video.add(mydb.mysql_real_escape_string(fileEntry.getName()));
+	        				list_video.add(fileEntry.getName());
 		        			break;
 		        		// Image
 	        			case "bmp":
@@ -239,7 +242,7 @@ public class GUI_search extends GUI{
 	        			case "tif":
 	        			case "tiff":
 	        			case "yuv":
-	        				list_image.add(mydb.mysql_real_escape_string(fileEntry.getName()));
+	        				list_image.add(fileEntry.getName());
 		        			break;
 	        		}
 	        	}
@@ -280,27 +283,74 @@ public class GUI_search extends GUI{
 		
 		// sync
 		ResultSet rs;
+		int sum_size = list_audio.size() + list_video.size() + list_image.size();
+		int done_size = 0;
+		int sync_size = 0;
+		int last_sync_size = 0;
+		int percent = 0;
+		int last_percent = 0;
 		try {
+			PreparedStatement s = mydb.conn.prepareStatement("INSERT INTO Files ( Path, Type, Name ) VALUES (?, ?, ?)");
 			for(int i = 0; i < list_audio.size(); i++){
-				rs = mydb.execute_query("SELECT Path FROM Files WHERE Path='" + list_audio.get(i) + "'");
+				rs = mydb.execute_query("SELECT Path FROM Files WHERE Path='" + mydb.mysql_real_escape_string(list_audio.get(i)) + "'");
 				if (!rs.next())
 				{
-					mydb.execute_update("INSERT INTO Files ( Path, Type, Name ) VALUES ('" + list_audio.get(i) + "', 1, '" + list_audio.get(i) + "' )");
+					s.setString(1, mydb.mysql_real_escape_string(list_audio.get(i)));
+					s.setInt(2, 1);
+					s.setString(3, mydb.mysql_real_escape_string(list_audio.get(i)));
+					s.addBatch();
+					sync_size++;
+				}
+				done_size++;
+				percent = done_size / ( sum_size / 100 );
+				if(last_sync_size!=sync_size || percent!=last_percent)
+				{
+					last_sync_size=sync_size;
+					last_percent=percent;
+					System.out.println("Checked: " + percent + "% to sync: " + sync_size + " / " + sum_size);
 				}
 			}
 			for(int i = 0; i < list_video.size(); i++){
-				rs = mydb.execute_query("SELECT Path FROM Files WHERE Path='" + list_video.get(i) + "'");
+				rs = mydb.execute_query("SELECT Path FROM Files WHERE Path='" + mydb.mysql_real_escape_string(list_video.get(i)) + "'");
 				if (!rs.next())
 				{
-					mydb.execute_update("INSERT INTO Files ( Path, Type, Name ) VALUES ('" + list_video.get(i) + "', 2, '" + list_video.get(i) + "' )");
+					s.setString(1, mydb.mysql_real_escape_string(list_video.get(i)));
+					s.setInt(2, 1);
+					s.setString(3, mydb.mysql_real_escape_string(list_video.get(i)));
+					s.addBatch();
+					sync_size++;
+				}
+				done_size++;
+				percent = done_size / ( sum_size / 100 );
+				if(last_sync_size!=sync_size || percent!=last_percent)
+				{
+					last_sync_size=sync_size;
+					last_percent=percent;
+					System.out.println("Checked: " + percent + "% to sync: " + sync_size + " / " + sum_size);
 				}
 			}
 			for(int i = 0; i < list_image.size(); i++){
-				rs = mydb.execute_query("SELECT Path FROM Files WHERE Path='" + list_image.get(i) + "'");
+				rs = mydb.execute_query("SELECT Path FROM Files WHERE Path='" + mydb.mysql_real_escape_string(list_image.get(i)) + "'");
 				if (!rs.next())
 				{
-					mydb.execute_update("INSERT INTO Files ( Path, Type, Name ) VALUES ('" + list_image.get(i) + "', 3, '" + list_image.get(i) + "' )");
+					s.setString(1, mydb.mysql_real_escape_string(list_image.get(i)));
+					s.setInt(2, 1);
+					s.setString(3, mydb.mysql_real_escape_string(list_image.get(i)));
+					s.addBatch();
+					sync_size++;
 				}
+				done_size++;
+				percent = done_size / ( sum_size / 100 );
+				if(last_sync_size!=sync_size || percent!=last_percent)
+				{
+					last_sync_size=sync_size;
+					last_percent=percent;
+					System.out.println("Checked: " + percent + "% to sync: " + sync_size + " / " + sum_size);
+				}
+			}
+			if(sync_size>0)
+			{
+				s.executeBatch();
 			}
 			found.setText("Gefundene Files: Audio: 0 Video: 0 Image: 0 ");
 			System.out.println("SyncDB successfully...");
@@ -341,7 +391,24 @@ public class GUI_search extends GUI{
 		}
 		if(e.getSource()==syncDB)
 		{
-			syncDB();
+			if (JOptionPane.showConfirmDialog(null, "Wollen sie die Synchronisation starten? Dies kann je nach dem einige Minuten dauern", "SyncDB", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE)== JOptionPane.YES_OPTION)
+			{
+				//Do the request
+				final Cursor normal = getCursor();
+				setCursor(new Cursor(Cursor.WAIT_CURSOR));
+				Thread t1 = new Thread(new Runnable() {
+					public void run() {
+						// code goes here.
+						syncDB();
+						setCursor(normal);
+					}
+				});  
+				t1.start();
+			}
+			else
+			{
+				//Go back to normal
+			}
 		}
 	}
 	

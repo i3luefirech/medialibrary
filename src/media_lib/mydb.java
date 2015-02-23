@@ -58,8 +58,6 @@ public class mydb {
 	
 	public static ResultSet execute_query(String sql) throws SQLException
 	{
-		// use Media lib
-		execute_update("USE MEDIA");
 		//Execute a query
 		stmt = conn.createStatement();
 		ResultSet rs = stmt.executeQuery(sql);
