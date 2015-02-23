@@ -115,7 +115,7 @@ public class mydb {
 			execute_update("CREATE TABLE Files ( "
 					+ "FileID int NOT NULL AUTO_INCREMENT, "
 					+ "PRIMARY KEY(FileID), "
-					+ "Path TEXT, "
+					+ "Filepath varchar ( 255 ), "
 					+ "Type int, "
 					+ "Name varchar ( 255 ) )");
 			// create KeyFil table

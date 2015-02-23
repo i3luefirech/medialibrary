@@ -46,9 +46,13 @@ public class GUI_search extends GUI{
 	JPanel mySFcmds;
 	JPanel myFound;
 
-	ArrayList<String> list_audio;
-	ArrayList<String> list_video;
-	ArrayList<String> list_image;
+	ArrayList<String> list_audio_name;
+	ArrayList<String> list_video_name;
+	ArrayList<String> list_image_name;
+	
+	ArrayList<String> list_audio_path;
+	ArrayList<String> list_video_path;
+	ArrayList<String> list_image_path;
 	
 	public GUI_search(Pref mypref) {
 		
@@ -60,9 +64,13 @@ public class GUI_search extends GUI{
 		mySFcmds = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		myFound = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		
-		list_audio = new ArrayList<String>();
-		list_video = new ArrayList<String>();
-		list_image = new ArrayList<String>();
+		list_audio_name = new ArrayList<String>();
+		list_video_name = new ArrayList<String>();
+		list_image_name = new ArrayList<String>();
+		
+		list_audio_path = new ArrayList<String>();
+		list_video_path = new ArrayList<String>();
+		list_image_path = new ArrayList<String>();
 		
 		title = new JLabel();
 		title.setText("Suchpfad");
@@ -207,7 +215,8 @@ public class GUI_search extends GUI{
 	        			case "wav":
 	        			case "wma":
 	        			case "flac":
-	        				list_audio.add(fileEntry.getName());
+	        				list_audio_name.add(fileEntry.getName());
+	        				list_audio_path.add(fileEntry.getAbsolutePath());
 	        				break;
 	        			// Video
 	        			case "3g2":
@@ -226,7 +235,8 @@ public class GUI_search extends GUI{
 	        			case "swf":
 	        			case "vob":
 	        			case "wmv":
-	        				list_video.add(fileEntry.getName());
+	        				list_video_name.add(fileEntry.getName());
+	        				list_video_path.add(fileEntry.getAbsolutePath());
 		        			break;
 		        		// Image
 	        			case "bmp":
@@ -242,7 +252,8 @@ public class GUI_search extends GUI{
 	        			case "tif":
 	        			case "tiff":
 	        			case "yuv":
-	        				list_image.add(fileEntry.getName());
+	        				list_image_name.add(fileEntry.getName());
+	        				list_image_path.add(fileEntry.getAbsolutePath());
 		        			break;
 	        		}
 	        	}
@@ -253,27 +264,33 @@ public class GUI_search extends GUI{
 	private void searchSF(){
 		System.out.println("Begin search...");
 		final File folder = new File(show_sf.getSelectedValue());
-		list_audio.clear();
-		list_video.clear();
-		list_image.clear();
+		list_audio_name.clear();
+		list_video_name.clear();
+		list_image_name.clear();
+		list_audio_path.clear();
+		list_video_path.clear();
+		list_image_path.clear();
 		listFilesForFolder(folder);
 		System.out.println("Search successfully...");
-		found.setText("Gefundene Files: Audio: " + list_audio.size() + " Video: " + list_video.size() + " Image: " + list_image.size() + " ");
+		found.setText("Gefundene Files: Audio: " + list_audio_name.size() + " Video: " + list_video_name.size() + " Image: " + list_image_name.size() + " ");
 		syncDB.setEnabled(true);
 	}
 
 	private void searchAllSF(){
 		System.out.println("Begin search...");
-		list_audio.clear();
-		list_video.clear();
-		list_image.clear();
+		list_audio_name.clear();
+		list_video_name.clear();
+		list_image_name.clear();
+		list_audio_path.clear();
+		list_video_path.clear();
+		list_image_path.clear();
 		for(int i = 0; i < searchfolders.getSize(); i++){
 			final File folder = new File(searchfolders.get(i));
 			System.out.println("Search path["+i+"]...");
 			listFilesForFolder(folder);
 		}
 		System.out.println("Search successfully...");
-		found.setText("Gefundene Files: Audio: " + list_audio.size() + " Video: " + list_video.size() + " Image: " + list_image.size() + " ");
+		found.setText("Gefundene Files: Audio: " + list_audio_name.size() + " Video: " + list_video_name.size() + " Image: " + list_image_name.size() + " ");
 		syncDB.setEnabled(true);
 	}
 	
@@ -283,26 +300,29 @@ public class GUI_search extends GUI{
 		
 		// sync
 		ResultSet rs;
-		int sum_size = list_audio.size() + list_video.size() + list_image.size();
+		int sum_size = list_audio_name.size() + list_video_name.size() + list_image_name.size();
 		int done_size = 0;
 		int sync_size = 0;
 		int last_sync_size = 0;
 		int percent = 0;
 		int last_percent = 0;
 		try {
-			PreparedStatement s = mydb.conn.prepareStatement("INSERT INTO Files ( Path, Type, Name ) VALUES (?, ?, ?)");
-			for(int i = 0; i < list_audio.size(); i++){
-				rs = mydb.execute_query("SELECT Path FROM Files WHERE Path='" + mydb.mysql_real_escape_string(list_audio.get(i)) + "'");
+			PreparedStatement s = mydb.conn.prepareStatement("INSERT INTO Files ( Filepath, Type, Name ) VALUES (?, ?, ?)");
+			for(int i = 0; i < list_audio_path.size(); i++){
+				rs = mydb.execute_query("SELECT Filepath FROM Files WHERE Filepath='" + mydb.mysql_real_escape_string(mydb.mysql_real_escape_string(list_audio_path.get(i))) + "'");
 				if (!rs.next())
 				{
-					s.setString(1, mydb.mysql_real_escape_string(list_audio.get(i)));
+					s.setString(1, mydb.mysql_real_escape_string(list_audio_path.get(i)));
 					s.setInt(2, 1);
-					s.setString(3, mydb.mysql_real_escape_string(list_audio.get(i)));
+					s.setString(3, mydb.mysql_real_escape_string(list_audio_name.get(i)));
 					s.addBatch();
 					sync_size++;
 				}
 				done_size++;
-				percent = done_size / ( sum_size / 100 );
+				if(0 != ( sum_size / 100 ))
+				{
+					percent = done_size / ( sum_size / 100 );
+				}
 				if(last_sync_size!=sync_size || percent!=last_percent)
 				{
 					last_sync_size=sync_size;
@@ -310,18 +330,21 @@ public class GUI_search extends GUI{
 					System.out.println("Checked: " + percent + "% to sync: " + sync_size + " / " + sum_size);
 				}
 			}
-			for(int i = 0; i < list_video.size(); i++){
-				rs = mydb.execute_query("SELECT Path FROM Files WHERE Path='" + mydb.mysql_real_escape_string(list_video.get(i)) + "'");
+			for(int i = 0; i < list_video_path.size(); i++){
+				rs = mydb.execute_query("SELECT Filepath FROM Files WHERE Filepath='" + mydb.mysql_real_escape_string(mydb.mysql_real_escape_string(list_video_path.get(i))) + "'");
 				if (!rs.next())
 				{
-					s.setString(1, mydb.mysql_real_escape_string(list_video.get(i)));
+					s.setString(1, mydb.mysql_real_escape_string(list_video_path.get(i)));
 					s.setInt(2, 1);
-					s.setString(3, mydb.mysql_real_escape_string(list_video.get(i)));
+					s.setString(3, mydb.mysql_real_escape_string(list_video_name.get(i)));
 					s.addBatch();
 					sync_size++;
 				}
 				done_size++;
-				percent = done_size / ( sum_size / 100 );
+				if(0 != ( sum_size / 100 ))
+				{
+					percent = done_size / ( sum_size / 100 );
+				}
 				if(last_sync_size!=sync_size || percent!=last_percent)
 				{
 					last_sync_size=sync_size;
@@ -329,18 +352,22 @@ public class GUI_search extends GUI{
 					System.out.println("Checked: " + percent + "% to sync: " + sync_size + " / " + sum_size);
 				}
 			}
-			for(int i = 0; i < list_image.size(); i++){
-				rs = mydb.execute_query("SELECT Path FROM Files WHERE Path='" + mydb.mysql_real_escape_string(list_image.get(i)) + "'");
-				if (!rs.next())
+			for(int i = 0; i < list_image_path.size(); i++){
+				rs = mydb.execute_query("SELECT Filepath FROM Files WHERE Filepath = \"" + mydb.mysql_real_escape_string(mydb.mysql_real_escape_string(list_image_path.get(i))) + "\"");
+				boolean hasnext = rs.next();
+				if (!hasnext)
 				{
-					s.setString(1, mydb.mysql_real_escape_string(list_image.get(i)));
+					s.setString(1, mydb.mysql_real_escape_string(list_image_path.get(i)));
 					s.setInt(2, 1);
-					s.setString(3, mydb.mysql_real_escape_string(list_image.get(i)));
+					s.setString(3, mydb.mysql_real_escape_string(list_image_name.get(i)));
 					s.addBatch();
 					sync_size++;
 				}
 				done_size++;
-				percent = done_size / ( sum_size / 100 );
+				if(0 != ( sum_size / 100 ))
+				{
+					percent = done_size / ( sum_size / 100 );
+				}
 				if(last_sync_size!=sync_size || percent!=last_percent)
 				{
 					last_sync_size=sync_size;
@@ -358,10 +385,12 @@ public class GUI_search extends GUI{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		list_audio.clear();
-		list_video.clear();
-		list_image.clear();
+		list_audio_name.clear();
+		list_video_name.clear();
+		list_image_name.clear();
+		list_audio_path.clear();
+		list_video_path.clear();
+		list_image_path.clear();
 	}
 
 	public void actionPerformed(ActionEvent e) {
