@@ -97,6 +97,8 @@ public class media_lib {
 			initErr(1,"SQL Connect");
 		}
 		
+		myGUI_l.fillTable();
+		
 		tabbedPane.addTab("Suchpfade", null, myGUI_s, "Suchpfade");
 		tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
 		tabbedPane.addTab("Bibliothek", null, myGUI_l, "Bibliothek");

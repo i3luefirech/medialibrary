@@ -192,73 +192,78 @@ public class GUI_search extends GUI{
 	
 	private void listFilesForFolder(final File folder)
 	{
-		for (final File fileEntry : folder.listFiles()) {
-	        if (fileEntry.isDirectory()) {
-	            System.out.println("Search folder " + fileEntry);
-	            listFilesForFolder(fileEntry);
-	        } else {
-	        	if(fileEntry.getName().contains("."))
-	        	{
-	        		int point = fileEntry.getName().lastIndexOf(".");
-	        		String extension = fileEntry.getName().substring(point+1).toLowerCase();
-	        		switch(extension)
-	        		{
-	        			// Audio
-	        			case "aif":
-	        			case "iff":
-	        			case "m3u":
-	        			case "m4a":
-	        			case "mid":
-	        			case "mp3":
-	        			case "mpa":
-	        			case "ra":
-	        			case "wav":
-	        			case "wma":
-	        			case "flac":
-	        				list_audio_name.add(fileEntry.getName());
-	        				list_audio_path.add(fileEntry.getAbsolutePath());
-	        				break;
-	        			// Video
-	        			case "3g2":
-	        			case "3gp":
-	        			case "asf":
-	        			case "asx":
-	        			case "avi":
-	        			case "flv":
-	        			case "m4v":
-	        			case "mov":
-	        			case "mp4":
-	        			case "mpg":
-	        			case "mpeg":
-	        			case "rm":
-	        			case "srt":
-	        			case "swf":
-	        			case "vob":
-	        			case "wmv":
-	        				list_video_name.add(fileEntry.getName());
-	        				list_video_path.add(fileEntry.getAbsolutePath());
-		        			break;
-		        		// Image
-	        			case "bmp":
-	        			case "dds":
-	        			case "gif":
-	        			case "jpg":
-	        			case "jpeg":
-	        			case "png":
-	        			case "psd":
-	        			case "pspimage":
-	        			case "tga":
-	        			case "thm":
-	        			case "tif":
-	        			case "tiff":
-	        			case "yuv":
-	        				list_image_name.add(fileEntry.getName());
-	        				list_image_path.add(fileEntry.getAbsolutePath());
-		        			break;
-	        		}
-	        	}
-	        }
-	    }
+		try {
+			for (final File fileEntry : folder.listFiles()) {
+			    if (fileEntry.isDirectory()) {
+			        System.out.println("Search folder " + fileEntry);
+			        listFilesForFolder(fileEntry);
+			    } else {
+			    	if(fileEntry.getName().contains("."))
+			    	{
+			    		int point = fileEntry.getName().lastIndexOf(".");
+			    		String extension = fileEntry.getName().substring(point+1).toLowerCase();
+			    		switch(extension)
+			    		{
+			    			// Audio
+			    			case "aif":
+			    			case "iff":
+			    			case "m3u":
+			    			case "m4a":
+			    			case "mid":
+			    			case "mp3":
+			    			case "mpa":
+			    			case "ra":
+			    			case "wav":
+			    			case "wma":
+			    			case "flac":
+			    				list_audio_name.add(fileEntry.getName());
+			    				list_audio_path.add(fileEntry.getAbsolutePath());
+			    				break;
+			    			// Video
+			    			case "3g2":
+			    			case "3gp":
+			    			case "asf":
+			    			case "asx":
+			    			case "avi":
+			    			case "flv":
+			    			case "m4v":
+			    			case "mov":
+			    			case "mp4":
+			    			case "mpg":
+			    			case "mpeg":
+			    			case "rm":
+			    			case "srt":
+			    			case "swf":
+			    			case "vob":
+			    			case "wmv":
+			    				list_video_name.add(fileEntry.getName());
+			    				list_video_path.add(fileEntry.getAbsolutePath());
+			        			break;
+			        		// Image
+			    			case "bmp":
+			    			case "dds":
+			    			case "gif":
+			    			case "jpg":
+			    			case "jpeg":
+			    			case "png":
+			    			case "psd":
+			    			case "pspimage":
+			    			case "tga":
+			    			case "thm":
+			    			case "tif":
+			    			case "tiff":
+			    			case "yuv":
+			    				list_image_name.add(fileEntry.getName());
+			    				list_image_path.add(fileEntry.getAbsolutePath());
+			        			break;
+			    		}
+			    	}
+			    }
+			}
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	private void searchSF(){
@@ -319,15 +324,16 @@ public class GUI_search extends GUI{
 					sync_size++;
 				}
 				done_size++;
-				if(0 != ( sum_size / 100 ))
+				double teiler = sum_size / 100;
+				if(Double.compare(teiler, 0.0d)==0)
 				{
-					percent = done_size / ( sum_size / 100 );
+					percent = (int) ((double)done_size / teiler);
 				}
 				if(last_sync_size!=sync_size || percent!=last_percent)
 				{
 					last_sync_size=sync_size;
 					last_percent=percent;
-					System.out.println("Checked: " + percent + "% to sync: " + sync_size + " / " + sum_size);
+					System.out.println("Teiler: " + teiler + " Checked: " + percent + "% ( " + done_size + " / " + sum_size + " ) to sync: " + sync_size + " / " + sum_size);
 				}
 			}
 			for(int i = 0; i < list_video_path.size(); i++){
@@ -335,21 +341,22 @@ public class GUI_search extends GUI{
 				if (!rs.next())
 				{
 					s.setString(1, mydb.mysql_real_escape_string(list_video_path.get(i)));
-					s.setInt(2, 1);
+					s.setInt(2, 2);
 					s.setString(3, mydb.mysql_real_escape_string(list_video_name.get(i)));
 					s.addBatch();
 					sync_size++;
 				}
 				done_size++;
-				if(0 != ( sum_size / 100 ))
+				double teiler = (double)((sum_size) / 100.0d);
+				if(Double.compare(teiler, 0.0d)==0)
 				{
-					percent = done_size / ( sum_size / 100 );
+					percent = (int) ((double)done_size / teiler);
 				}
 				if(last_sync_size!=sync_size || percent!=last_percent)
 				{
 					last_sync_size=sync_size;
 					last_percent=percent;
-					System.out.println("Checked: " + percent + "% to sync: " + sync_size + " / " + sum_size);
+					System.out.println("Teiler: " + teiler + " Checked: " + percent + "% ( " + done_size + " / " + sum_size + " ) to sync: " + sync_size + " / " + sum_size);
 				}
 			}
 			for(int i = 0; i < list_image_path.size(); i++){
@@ -358,21 +365,22 @@ public class GUI_search extends GUI{
 				if (!hasnext)
 				{
 					s.setString(1, mydb.mysql_real_escape_string(list_image_path.get(i)));
-					s.setInt(2, 1);
+					s.setInt(2, 3);
 					s.setString(3, mydb.mysql_real_escape_string(list_image_name.get(i)));
 					s.addBatch();
 					sync_size++;
 				}
 				done_size++;
-				if(0 != ( sum_size / 100 ))
+				double teiler = (double)((sum_size) / 100.0d);
+				if(Double.compare(teiler, 0.0d)==0)
 				{
-					percent = done_size / ( sum_size / 100 );
+					percent = (int) ((double)done_size / teiler);
 				}
 				if(last_sync_size!=sync_size || percent!=last_percent)
 				{
 					last_sync_size=sync_size;
 					last_percent=percent;
-					System.out.println("Checked: " + percent + "% to sync: " + sync_size + " / " + sum_size);
+					System.out.println("Teiler: " + teiler + " Checked: " + percent + "% ( " + done_size + " / " + sum_size + " ) to sync: " + sync_size + " / " + sum_size);
 				}
 			}
 			if(sync_size>0)

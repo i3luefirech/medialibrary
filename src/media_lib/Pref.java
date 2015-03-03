@@ -15,6 +15,7 @@ public class Pref {
 	
 	final String PREF_DB_PATH = "DB_PATH";
 	final String PREF_SEARCH_PATH = "SEARCH_PATH";
+	final String PREF_FILTER = "DB_FILTER";
 	final String PREF_WIDTH = "SIZE_WIDTH";
 	final String PREF_HEIGHT = "SIZE_HEIGHT";
 	
@@ -38,6 +39,14 @@ public class Pref {
 
 	public String getSF() {
 		return prefs.get(PREF_SEARCH_PATH, "");
+	}
+	
+	public void setFil(String searchpath) {
+		prefs.put(PREF_FILTER, searchpath);
+	}
+
+	public String getFil() {
+		return prefs.get(PREF_FILTER, "----                ");
 	}
 
 	public Dimension getPreferredSize(){
