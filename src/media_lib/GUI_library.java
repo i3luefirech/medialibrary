@@ -1,8 +1,11 @@
 package media_lib;
 
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -14,8 +17,13 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.event.ListSelectionEvent;
+import javax.swing.RowFilter;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
+import javax.swing.table.TableRowSorter;
 
 
 @SuppressWarnings("serial")
@@ -33,6 +41,8 @@ public class GUI_library extends GUI{
 
 	JLabel label_filter;
 	JCheckBox check_filter;
+	JCheckBox check_filter1;
+	JCheckBox check_filter2;
 	JComboBox<String> combo_filter;
 	JButton button_fadd;
 	JButton button_fuse;
@@ -72,10 +82,68 @@ public class GUI_library extends GUI{
 		title = new JLabel();
 		title.setText("Bibliothek");
 		
+		 ActionListener FilterListener = new ActionListener(){
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String regex = "(";
+					System.out.println("tshgbsed");
+					if(check_filter.isSelected())
+					{
+						regex += "Audio";
+				        System.out.println("0");
+					}
+					if(check_filter1.isSelected())
+					{
+						if(regex.compareTo("(")==0)
+						{
+							regex += "Video";
+						}
+						else
+						{
+							regex += "|Video";
+						}
+				        System.out.println("1");
+					}
+					if(check_filter2.isSelected())
+					{
+						if(regex.compareTo("(")==0)
+						{
+							regex += "Image";
+						}
+						else
+						{
+							regex += "|Image";
+						}
+				        System.out.println("2");
+					}
+					if(regex.compareTo("(")!=0)
+					{
+						regex += ")";
+					}
+					else
+					{
+						regex="$.^";
+					}
+			        final TableRowSorter<TableModel> sorter = new TableRowSorter<TableModel>(table_files.getModel());
+			        sorter.setRowFilter(RowFilter.regexFilter(regex,2));
+			        table_files.setRowSorter(sorter);
+				}
+			};
+		
 		label_filter = new JLabel();
 		label_filter.setText("Filter");
 		check_filter = new JCheckBox();
-		check_filter.setText("aktiv");
+		check_filter.setText("Audio");
+		check_filter.setSelected(true);
+		check_filter.addActionListener(FilterListener);
+		check_filter1 = new JCheckBox();
+		check_filter1.setText("Video");
+		check_filter1.setSelected(true);
+		check_filter1.addActionListener(FilterListener);
+		check_filter2 = new JCheckBox();
+		check_filter2.setText("Image");
+		check_filter2.setSelected(true);
+		check_filter2.addActionListener(FilterListener);
 		String [] list = {};
 		list = fillList(list);
 		combo_filter = new JComboBox<String>(list);
@@ -86,6 +154,8 @@ public class GUI_library extends GUI{
 		
 		myFilter.add(label_filter);
 		myFilter.add(check_filter);
+		myFilter.add(check_filter1);
+		myFilter.add(check_filter2);
 		myFilter.add(combo_filter);
 		myFilter.add(button_fuse);
 		myFilter.add(button_fadd);
@@ -96,9 +166,52 @@ public class GUI_library extends GUI{
 		table_model = (DefaultTableModel) table_files.getModel();
 		table_model.setColumnIdentifiers(tableColumnsName);
 		table_files.setAutoCreateRowSorter(true);
+		table_files.setDefaultRenderer(Object.class, new TableCellRenderer(){
+            private DefaultTableCellRenderer DEFAULT_RENDERER =  new DefaultTableCellRenderer();
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = DEFAULT_RENDERER.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                if (row%2 == 0){
+                    c.setBackground(Color.WHITE);
+                }
+                else {
+                    c.setBackground(Color.LIGHT_GRAY);
+                }                        
+                return c;
+            }
+
+        });
 		
 		table_files.getColumn("More").setCellRenderer(new ButtonRenderer());
 		table_files.getColumn("More").setCellEditor(new ButtonEditor(new JCheckBox()));
+		
+		table_files.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		
+		for(int i = 0; i < table_files.getColumnCount(); i++)
+		{
+			TableColumn mycol = table_files.getColumnModel().getColumn(i);
+			switch(i)
+			{
+			case 0:
+				mycol.setPreferredWidth(80);
+				break;
+			case 1:
+				mycol.setPreferredWidth(310);
+				break;
+			case 2:
+				mycol.setPreferredWidth(80);
+				break;
+			case 3:
+				mycol.setPreferredWidth(120);
+				break;
+			case 4:
+				mycol.setPreferredWidth(210);
+				break;
+			case 5:
+				mycol.setPreferredWidth(50);
+				break;
+			}
+		}
 		
 		sp_files = new JScrollPane(table_files);
 		sp_files.setPreferredSize(new Dimension(this.mypref.getPreferredSize().width-60, this.mypref.getPreferredSize().height-365));
@@ -116,26 +229,16 @@ public class GUI_library extends GUI{
 		add(myCMDs);
 	}
 
-	public void actionPerformed(ActionEvent e) {
-	}
-	
-	@Override
-	public void valueChanged(ListSelectionEvent e) {
-	}
-
 	public void fillTable() {
 		ResultSet rs = null;
-		ResultSet rs1 = null;
-		ResultSet rs2 = null;
 		try {
 			rs = mydb.execute_query("SELECT * FROM Files");
-			rs1 = mydb.execute_query("SELECT * FROM Keywords");
-			rs2 = mydb.execute_query("SELECT * FROM KeyFil");
 			
 			ResultSetMetaData rsmd = rs.getMetaData();
 			int colNo = rsmd.getColumnCount();
 			while(rs.next()){
 				Object[] objects = new Object[colNo+2];
+				int fileid = -1;
 				for(int i=0;i<colNo;i++){
 					if(i%2==1)
 					{
@@ -158,13 +261,23 @@ public class GUI_library extends GUI{
 								objects[i]="Unknown";
 						}
 					}
-					else
+					else if(i == 0)
 					{
 						objects[i]=String.format("%08d",(int)rs.getObject(i+1));
+						fileid=(int)rs.getObject(i+1);
 					}
 				}
 				
-				String keyw = "TODO";
+				String keyw = "";
+				ResultSet rs1 = mydb.execute_query("SELECT KeywordID FROM KeyFil WHERE FileID="+fileid);
+				while(rs1.next())
+				{
+					ResultSet rs2 = mydb.execute_query("SELECT Name FROM KEywords WHERE KeywordID="+rs1.getInt(""));
+					while(rs2.next())
+					{
+						keyw += (rs2.getString("name")+";");
+					}
+				}
 				objects[colNo] = keyw;
 				
 				String more = "...";

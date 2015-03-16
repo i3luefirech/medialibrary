@@ -1,5 +1,6 @@
 package media_lib;
 
+import java.awt.Color;
 import java.awt.Component;
 
 import javax.swing.JButton;
@@ -23,6 +24,12 @@ class ButtonRenderer extends JButton implements TableCellRenderer {
 	      setBackground(UIManager.getColor("Button.background"));
 	    }
 	    setText((value == null) ? "" : value.toString());
+	    if (row%2 == 0){
+            setBackground(Color.WHITE);
+        }
+        else {
+            setBackground(Color.LIGHT_GRAY);
+        }   
 	    return this;
 	  }
 	}
