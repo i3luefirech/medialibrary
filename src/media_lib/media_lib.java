@@ -6,7 +6,6 @@ package media_lib;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Toolkit;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
@@ -14,6 +13,7 @@ import java.io.PrintStream;
 import java.sql.SQLException;
 
 import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -134,7 +134,8 @@ public class media_lib {
 				// TODO Auto-generated method stub
 				
 			}});
-		frame.setIconImage(Toolkit.getDefaultToolkit().getImage("img/logo.png"));
+		ImageIcon myIcon = new ImageIcon(media_lib.class.getResource("/logo.png"));
+		frame.setIconImage(myIcon.getImage());
 		frame.setTitle("AML - Another Media Library");
 		frame.setLocationByPlatform(true);
 		frame.add(mainpanel);

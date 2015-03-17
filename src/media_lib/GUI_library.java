@@ -17,6 +17,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.RowFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -31,7 +32,8 @@ public class GUI_library extends GUI{
 	
 	JPanel myTitle;
 	JPanel myFileView;
-	JPanel myFilter;
+	JPanel typeFilter;
+	JPanel valueFilter;
 	JPanel myCMDs;
 
 	JButton button_edit;
@@ -44,8 +46,10 @@ public class GUI_library extends GUI{
 	JCheckBox check_filter1;
 	JCheckBox check_filter2;
 	JComboBox<String> combo_filter;
-	JButton button_fadd;
-	JButton button_fuse;
+	JComboBox<String> combo_filter1;
+	JTextField tb_filter;
+	JButton button_fand;
+	JButton button_for;
 	
 	JTable table_files;
 	
@@ -65,7 +69,8 @@ public class GUI_library extends GUI{
 		super(mypref);
 
 		myTitle = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		myFilter = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		valueFilter = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		typeFilter = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		myFileView = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		myCMDs = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		
@@ -147,18 +152,25 @@ public class GUI_library extends GUI{
 		String [] list = {};
 		list = fillList(list);
 		combo_filter = new JComboBox<String>(list);
-		button_fadd = new JButton();
-		button_fadd.setText("Hinzufügen");
-		button_fuse = new JButton();
-		button_fuse.setText("Benutzen");
+		String [] list1 = {"-----","grösser als","kleiner als","grösser gleich","kleiner gleich","gleich","beginnt mit","endet mit","enthält"};
+		combo_filter1 = new JComboBox<String>(list1);
+		tb_filter = new JTextField();
+		tb_filter.setText("Filtervalue");
+		tb_filter.setColumns(25);
+		button_fand = new JButton();
+		button_fand.setText("UND");
+		button_for= new JButton();
+		button_for.setText("ODER");
 		
-		myFilter.add(label_filter);
-		myFilter.add(check_filter);
-		myFilter.add(check_filter1);
-		myFilter.add(check_filter2);
-		myFilter.add(combo_filter);
-		myFilter.add(button_fuse);
-		myFilter.add(button_fadd);
+		typeFilter.add(label_filter);
+		typeFilter.add(check_filter);
+		typeFilter.add(check_filter1);
+		typeFilter.add(check_filter2);
+		valueFilter.add(combo_filter);
+		valueFilter.add(combo_filter1);
+		valueFilter.add(tb_filter);
+		valueFilter.add(button_for);
+		valueFilter.add(button_fand);
 		
 		myTitle.add(title);
 		
@@ -224,7 +236,8 @@ public class GUI_library extends GUI{
 		myCMDs.add(button_add);
 		
 		add(myTitle);
-		add(myFilter);
+		add(typeFilter);
+		add(valueFilter);
 		add(myFileView);
 		add(myCMDs);
 	}
